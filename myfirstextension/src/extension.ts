@@ -5,6 +5,8 @@ import * as vscode from 'vscode';
 import axios from 'axios';
 import * as qs from 'qs';
 
+const Hover = vscode.Hover;
+
 interface sentenceItem {
 	backend: number;
 	orig: string;
@@ -58,8 +60,13 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 		}).then(res => {
 			const data: responce = res.data;
-			let text: string = data.sentences.map(s => s.trans).join('、') + '；' + data.dict.map(d => (`${d.pos}: ${d.terms.slice(0, 3).join('，')}`)).join('；');
-			vscode.window.showInformationMessage(text, { modal: true });
+			let result: string = data.sentences.map(s => s.trans).join('、') + '；' + data.dict.map(d => (`${d.pos}: ${d.terms.slice(0, 3).join('，')}`)).join('；');
+			vscode.window.showInformationMessage(result, { modal: true });
+			// vscode.languages.registerHoverProvider('*', {
+				// provideHover(document, position, token) {
+					// return new Hover(result);
+				// }
+			// });
 		});
 	});
 
