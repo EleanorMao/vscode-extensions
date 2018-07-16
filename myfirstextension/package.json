@@ -35,5 +35,10 @@
         "tslint": "^5.8.0",
         "@types/node": "^7.0.43",
         "@types/mocha": "^2.2.42"
+    },
+    "dependencies": {
+        "@types/qs": "^6.5.1",
+        "axios": "^0.18.0",
+        "qs": "^6.5.2"
     }
 }

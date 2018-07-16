@@ -2,7 +2,23 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
+import axios from 'axios';
+import * as qs from 'qs';
 
+interface sentenceItem {
+	backend: number;
+	orig: string;
+	trans: string;
+}
+interface dictItem {
+	pos: string;
+	terms: string[];
+}
+interface responce {
+	dict: dictItem[];
+	sentences: sentenceItem[];
+	src: string;
+}
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
@@ -25,8 +41,26 @@ export function activate(context: vscode.ExtensionContext) {
 		let selection = editor.selection;
 		let text = editor.document.getText(selection);
 
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Selected Characters : ' + text);
+		axios.get('https://translate.googleapis.com/translate_a/single', {
+			params: {
+				client: 'gtx',
+				sl: 'en',
+				tl: 'zh-CN',
+				hl: 'zh-CN',
+				dt: ['t', 'bd'],
+				dj: 1,
+				source: 'icon',
+				tk: 0,
+				q: text
+			},
+			paramsSerializer: params => {
+				return qs.stringify(params, { arrayFormat: 'repeat' });
+			}
+		}).then(res => {
+			const data: responce = res.data;
+			let text: string = data.sentences.map(s => s.trans).join('、') + '；' + data.dict.map(d => (`${d.pos}: ${d.terms.slice(0, 3).join('，')}`)).join('；');
+			vscode.window.showInformationMessage(text, { modal: true });
+		});
 	});
 
 	context.subscriptions.push(disposable);
