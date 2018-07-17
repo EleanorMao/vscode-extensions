@@ -2,7 +2,7 @@
 	"name": "english-to-chinese",
 	"displayName": "翻译小工具(英翻中)",
 	"description": "翻译小工具(英翻中) 测试版",
-	"version": "0.0.3",
+	"version": "0.0.4",
 	"publisher": "eleanormao",
 	"engines": {
 		"vscode": "^1.25.0"

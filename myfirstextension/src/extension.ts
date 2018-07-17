@@ -17,7 +17,8 @@ export function activate(context: vscode.ExtensionContext) {
 
 		let selection = editor.selection;
 		let text = editor.document.getText(selection);
-		StatusBarItem.text = `翻译小工具查询 “${text}” 中...`;
+		StatusBarItem.text = `翻译中...`;
+		StatusBarItem.show();
 		axios.get('https://translate.googleapis.com/translate_a/single', {
 			params: {
 				client: 'gtx',
