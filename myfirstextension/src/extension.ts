@@ -38,9 +38,15 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 		}).then(res => {
 			const data: Responce = res.data;
-			let result: string = data.sentences.map(s => s.trans).join('、') + '；' + data.dict.map(d => (`${d.pos}: ${d.terms.slice(0, 3).join('，')}`)).join('；');
-			cached[text] = result;
-			vscode.window.showInformationMessage(result, { modal: true });
+			if (!data.sentences || !data.sentences.length) {
+				vscode.window.showInformationMessage('出错啦', { modal: true });
+			} else {
+				let result: string = data.sentences.map(s => s.trans).join('、') + '；' + data.dict.map(d => (`${d.pos}: ${d.terms.slice(0, 3).join('，')}`)).join('；');
+				cached[text] = result;
+				vscode.window.showInformationMessage(result, { modal: true });
+			}
+		}).catch(() => {
+			vscode.window.showInformationMessage('出错啦', { modal: true });
 		});
 	});
 	vscode.languages.registerHoverProvider('*', {
