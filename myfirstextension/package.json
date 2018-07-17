@@ -1,7 +1,7 @@
 {
-	"name": "myfirstextension",
-	"displayName": "myFirstExtension",
-	"description": "",
+	"name": "中翻英",
+	"displayName": "中翻英",
+	"description": "翻译小工具",
 	"version": "0.0.1",
 	"publisher": "eleanormao",
 	"engines": {
@@ -18,7 +18,7 @@
 		"commands": [
 			{
 				"command": "extension.elTranslate",
-				"title": "fanyi"
+				"title": "translate"
 			}
 		],
 		"keybindings": {
@@ -26,6 +26,16 @@
 			"key": "ctrl+t",
 			"mac": "cmd+t",
 			"when": "editorHasSelection"
+		},
+		"menus": {
+			"editor/context": [
+				{
+					"command": "extension.elTranslate",
+					"title": "translate",
+					"when": "editorHasSelection",
+					"group": "1_modification@1"
+				}
+			]
 		}
 	},
 	"scripts": {
