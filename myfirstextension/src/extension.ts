@@ -8,7 +8,7 @@ const cached: Cached = {};
 
 export function activate(context: vscode.ExtensionContext) {
 	console.log('Congratulations, your extension "myfirstextension" is now active!');
-
+	const StatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
 	let disposable = vscode.commands.registerCommand('extension.elTranslate', () => {
 		let editor = vscode.window.activeTextEditor;
 		if (!editor) {
@@ -17,7 +17,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 		let selection = editor.selection;
 		let text = editor.document.getText(selection);
-		console.log(text);
+		StatusBarItem.text = `翻译小工具查询 “${text}” 中...`;
 		axios.get('https://translate.googleapis.com/translate_a/single', {
 			params: {
 				client: 'gtx',
@@ -34,15 +34,21 @@ export function activate(context: vscode.ExtensionContext) {
 				return qs.stringify(params, { arrayFormat: 'repeat' });
 			}
 		}).then(res => {
+			StatusBarItem.hide();
 			const data: Responce = res.data;
 			if (!data.sentences || !data.sentences.length) {
 				vscode.window.showInformationMessage('翻译不出来呢...', { modal: true });
 			} else {
-				let result: string = data.sentences.map(s => s.trans).join('、') + '；' + data.dict.map(d => (`${d.pos}: ${d.terms.slice(0, 3).join('，')}`)).join('；');
+				let result: string = data.sentences.map(s => s.trans).join('、');
+				if (data.dict && data.dict.length) {
+					result += '；' + data.dict.map(d => (`${d.pos}: ${d.terms.slice(0, 3).join('，')}`)).join('；');
+				}
 				cached[text] = result;
 				vscode.window.showInformationMessage(result, { modal: true });
 			}
 		}).catch(res => {
+			StatusBarItem.hide();
+			vscode.window.showInformationMessage('出错了呢...', { modal: true });
 			console.log(res);
 		});
 	});
@@ -60,6 +66,7 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	});
 	context.subscriptions.push(disposable);
+	context.subscriptions.push(StatusBarItem);
 }
 
 export function deactivate() {
