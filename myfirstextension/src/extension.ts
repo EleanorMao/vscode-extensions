@@ -17,6 +17,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 		let selection = editor.selection;
 		let text = editor.document.getText(selection);
+		console.log(text);
 		axios.get('https://translate.googleapis.com/translate_a/single', {
 			params: {
 				client: 'gtx',
@@ -35,14 +36,14 @@ export function activate(context: vscode.ExtensionContext) {
 		}).then(res => {
 			const data: Responce = res.data;
 			if (!data.sentences || !data.sentences.length) {
-				vscode.window.showInformationMessage('出错啦', { modal: true });
+				vscode.window.showInformationMessage('翻译不出来呢...', { modal: true });
 			} else {
 				let result: string = data.sentences.map(s => s.trans).join('、') + '；' + data.dict.map(d => (`${d.pos}: ${d.terms.slice(0, 3).join('，')}`)).join('；');
 				cached[text] = result;
 				vscode.window.showInformationMessage(result, { modal: true });
 			}
-		}).catch(() => {
-			vscode.window.showInformationMessage('出错啦', { modal: true });
+		}).catch(res => {
+			console.log(res);
 		});
 	});
 	vscode.languages.registerHoverProvider('*', {
