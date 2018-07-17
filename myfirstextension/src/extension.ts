@@ -1,48 +1,26 @@
 'use strict';
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import axios from 'axios';
 import * as qs from 'qs';
-
+import { Responce, Cached } from './interface';
 const Hover = vscode.Hover;
+const cached: Cached = {};
 
-interface sentenceItem {
-	backend: number;
-	orig: string;
-	trans: string;
-}
-interface dictItem {
-	pos: string;
-	terms: string[];
-}
-interface responce {
-	dict: dictItem[];
-	sentences: sentenceItem[];
-	src: string;
-}
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
+const encodeText = (text: string) => {
+	return encodeURI(text.replace(/['"]/g, '').replace(/\/\//g, ' ').trim());
+};
+
 export function activate(context: vscode.ExtensionContext) {
-
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "myfirstextension" is now active!');
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with  registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('extension.sayHello', () => {
-		// The code you place here will be executed every time your command is executed
-
+	let disposable = vscode.commands.registerCommand('extension.elTranslate', () => {
 		let editor = vscode.window.activeTextEditor;
 		if (!editor) {
 			return;
 		}
 
 		let selection = editor.selection;
-		let text = editor.document.getText(selection);
-
+		let text = encodeText(editor.document.getText(selection));
 		axios.get('https://translate.googleapis.com/translate_a/single', {
 			params: {
 				client: 'gtx',
@@ -52,27 +30,34 @@ export function activate(context: vscode.ExtensionContext) {
 				dt: ['t', 'bd'],
 				dj: 1,
 				source: 'icon',
-				tk: 0,
+				tk: (Math.random() * 1000000).toFixed(6),
 				q: text
 			},
 			paramsSerializer: params => {
 				return qs.stringify(params, { arrayFormat: 'repeat' });
 			}
 		}).then(res => {
-			const data: responce = res.data;
+			const data: Responce = res.data;
 			let result: string = data.sentences.map(s => s.trans).join('、') + '；' + data.dict.map(d => (`${d.pos}: ${d.terms.slice(0, 3).join('，')}`)).join('；');
+			cached[text] = result;
 			vscode.window.showInformationMessage(result, { modal: true });
-			// vscode.languages.registerHoverProvider('*', {
-				// provideHover(document, position, token) {
-					// return new Hover(result);
-				// }
-			// });
 		});
 	});
+	vscode.languages.registerHoverProvider('*', {
+		provideHover(document, position, token) {
+			let editor = vscode.window.activeTextEditor;
+			if (!editor) {
+				return;
+			}
 
+			let text = encodeText(document.getText(editor.selection)) || encodeText(document.getText(document.getWordRangeAtPosition(position)));
+			if (text && cached[text]) {
+				return new Hover(cached[text]);
+			}
+		}
+	});
 	context.subscriptions.push(disposable);
 }
 
-// this method is called when your extension is deactivated
 export function deactivate() {
 }

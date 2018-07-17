@@ -11,18 +11,18 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:extension.sayHello"
+		"onCommand:extension.elTranslate"
 	],
 	"main": "./out/extension",
 	"contributes": {
 		"commands": [
 			{
-				"command": "extension.sayHello",
-				"title": "Hello World"
+				"command": "extension.elTranslate",
+				"title": "fanyi"
 			}
 		],
 		"keybindings": {
-			"command": "extension.sayHello",
+			"command": "extension.elTranslate",
 			"key": "ctrl+t",
 			"mac": "cmd+t",
 			"when": "editorHasSelection"
