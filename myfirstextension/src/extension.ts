@@ -6,10 +6,6 @@ import { Responce, Cached } from './interface';
 const Hover = vscode.Hover;
 const cached: Cached = {};
 
-const encodeText = (text: string) => {
-	return encodeURI(text.replace(/['"]/g, '').replace(/\/\//g, ' ').trim());
-};
-
 export function activate(context: vscode.ExtensionContext) {
 	console.log('Congratulations, your extension "myfirstextension" is now active!');
 
@@ -20,7 +16,7 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 
 		let selection = editor.selection;
-		let text = encodeText(editor.document.getText(selection));
+		let text = editor.document.getText(selection);
 		axios.get('https://translate.googleapis.com/translate_a/single', {
 			params: {
 				client: 'gtx',
@@ -56,7 +52,7 @@ export function activate(context: vscode.ExtensionContext) {
 				return;
 			}
 
-			let text = encodeText(document.getText(editor.selection)) || encodeText(document.getText(document.getWordRangeAtPosition(position)));
+			let text = document.getText(editor.selection) || document.getText(document.getWordRangeAtPosition(position));
 			if (text && cached[text]) {
 				return new Hover(cached[text]);
 			}
